@@ -62,6 +62,9 @@ end
 	Name: SWEP:SecondaryAttack()
 	Desc: +attack2 has been pressed
 -----------------------------------------------------------]]
+
+local viewPunchAngle = Angle( -10, 0, 0 )
+
 function SWEP:SecondaryAttack()
 
 	-- Make sure we can shoot first
@@ -77,7 +80,7 @@ function SWEP:SecondaryAttack()
 	self:TakeSecondaryAmmo( 1 )
 
 	-- Punch the player's view
-	if ( !self.Owner:IsNPC() ) then self.Owner:ViewPunch( Angle( -10, 0, 0 ) ) end
+	if ( !self.Owner:IsNPC() ) then self:GetOwnere():ViewPunch( viewPunchAngle ) end
 
 end
 
@@ -130,19 +133,21 @@ end
 	Desc: A convenience function to shoot bullets
 -----------------------------------------------------------]]
 function SWEP:ShootBullet( damage, num_bullets, aimcone, ammo_type, force, tracer )
+	
+	local owner = self:GetOwner()
+	
+	local bullet = {
+		Num = num_bullets,
+		Src = owner:GetShootPos(),			-- Source
+		Dir = owner:GetAimVector(),			-- Dir of Bullet
+		Spread = Vector( aimcone, aimcone, 0 ),		-- Aim Cone
+		Tracer = tracer || 5,				-- Show a tracer on every x bullets
+		Force = force || 1,				-- Amount of force given to phys objects
+		Damage = damage,
+		AmmoType = ammo_type || self.Primary.Ammo,
+	}
 
-	local bullet = {}
-	bullet.Num		= num_bullets
-	bullet.Src		= self.Owner:GetShootPos()			-- Source
-	bullet.Dir		= self.Owner:GetAimVector()			-- Dir of bullet
-	bullet.Spread	= Vector( aimcone, aimcone, 0 )		-- Aim Cone
-	bullet.Tracer	= tracer || 5						-- Show a tracer on every x bullets
-	bullet.Force	= force || 1						-- Amount of force to give to phys objects
-	bullet.Damage	= damage
-	bullet.AmmoType = ammo_type || self.Primary.Ammo
-
-	self.Owner:FireBullets( bullet )
-
+	owner:FireBullets( bullet )
 	self:ShootEffects()
 
 end
@@ -177,7 +182,7 @@ function SWEP:TakeSecondaryAmmo( num )
 
 		if ( self:Ammo2() <= 0 ) then return end
 
-		self.Owner:RemoveAmmo( num, self:GetSecondaryAmmoType() )
+		self:GetOwner():RemoveAmmo( num, self:GetSecondaryAmmoType() )
 
 	return end
 
@@ -241,7 +246,7 @@ end
 	Desc: Returns how much of ammo1 the player has
 -----------------------------------------------------------]]
 function SWEP:Ammo1()
-	return self.Owner:GetAmmoCount( self:GetPrimaryAmmoType() )
+	return self:GetOwner:GetAmmoCount( self:GetPrimaryAmmoType() )
 end
 
 --[[---------------------------------------------------------
@@ -249,7 +254,7 @@ end
 	Desc: Returns how much of ammo2 the player has
 -----------------------------------------------------------]]
 function SWEP:Ammo2()
-	return self.Owner:GetAmmoCount( self:GetSecondaryAmmoType() )
+	return self:GetOwner:GetAmmoCount( self:GetSecondaryAmmoType() )
 end
 
 --[[---------------------------------------------------------
