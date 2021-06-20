@@ -132,12 +132,12 @@ net.Receive( "NPCKilledNPC", RecvNPCKilledNPC )
 -----------------------------------------------------------]]
 function GM:AddDeathNotice( Attacker, team1, Inflictor, Victim, team2 )
 
-	local Death = {}
-	Death.time		= CurTime()
-
-	Death.left		= Attacker
-	Death.right		= Victim
-	Death.icon		= Inflictor
+	local Death = {
+		time = CurTime(),
+		left = Attacker,
+		right = Victim,
+		icon = Inflictor
+	}
 
 	if ( team1 == -1 ) then Death.color1 = table.Copy( NPC_Color )
 	else Death.color1 = table.Copy( team.GetColor( team1 ) ) end
@@ -191,7 +191,7 @@ function GM:DrawDeathNotice( x, y )
 	y = y * ScrH()
 
 	-- Draw
-	for k, Death in pairs( Deaths ) do
+	for k, Death in ipairs( Deaths ) do
 
 		if ( Death.time + hud_deathnotice_time > CurTime() ) then
 
@@ -213,7 +213,7 @@ function GM:DrawDeathNotice( x, y )
 	-- We want to maintain the order of the table so instead of removing
 	-- expired entries one by one we will just clear the entire table
 	-- once everything is expired.
-	for k, Death in pairs( Deaths ) do
+	for k, iDeath in pairs( Deaths ) do
 		if ( Death.time + hud_deathnotice_time > CurTime() ) then
 			return
 		end
